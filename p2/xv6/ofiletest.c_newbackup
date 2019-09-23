@@ -1,0 +1,59 @@
+#include "types.h"
+#include "stat.h"
+#include "user.h"
+#include "fs.h"
+#include "types.h"
+#include "param.h"
+#include "memlayout.h"
+#include "mmu.h"
+#include "proc.h"
+#include "x86.h"
+#include "syscall.h"
+#include "fcntl.h"
+
+//char itoa_u (int num);
+int main(int argc, char *argv[])
+{
+//  struct proc *curproc = myproc();
+//
+if(argc < 2 ) {
+	printf(1,"No file open argument passed\n");
+	exit();
+}
+
+int fd[100];
+int argnum;
+
+//char strr[10] = "ofile4";
+//char *strr = "ofile5";
+
+	argnum = atoi(argv[1]);
+	printf(1,"Arg num = %d", argnum);
+for (int i = 0; i < 16; i++) {
+	if(i < argnum) {
+		fd[i] = open("ofile6",O_CREATE|O_RDWR);
+//		printf(1,"File Created = %d", i);
+	}
+	else ;
+}
+//fd[0] = open("ofile1",O_CREATE|O_RDWR);
+//fd[1] = open("ofile2",O_CREATE|O_RDWR);
+//fd[2] = open("ofile3",O_CREATE|O_RDWR);
+for(int j = 2; j < argc; j++) {
+	close(fd[atoi(argv[j])]);
+}
+//close(fd[1]);
+//rm(fd[0]);
+//fd[3] = open(strr,O_CREATE|O_RDWR);
+printf(1,"File: %d\n",fd);
+  int  pid;
+  int nextfile;
+  pid = getofilecnt(getpid());
+  nextfile = getofilenext(getpid());
+  printf(1,"The PID is %d\n",pid); 
+  printf(1,"The Next is %d\n",nextfile); 
+//  printf(1,"The filename is %s\n",strr); 
+//  printf(1,"The SPID is %d\n",curproc->pid); 
+  exit();
+}
+
