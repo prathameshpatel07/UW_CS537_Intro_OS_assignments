@@ -520,17 +520,22 @@ getofilenext(int pid)
   struct proc *p;
 
   acquire(&ptable.lock);
+  int filefull = 0;
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
        int filenum = 0;
        for(int fd = 0; fd < NOFILE; fd++){
           if(!p->ofile[fd]){
 		  filenum = fd;
+		  filefull = 0;
 		  break;
           }
+	  else
+		  filefull = 1;
        }
       release(&ptable.lock);
-      return filenum;
+      if (filefull == 0) return filenum;
+	else return -1;
     }
   }
   release(&ptable.lock);
