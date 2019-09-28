@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
                 int jid;
                 char *jobcmd;
                 int valid;
+                int bg;
         };
         struct jobstr job_idx[100];
 //Argument Check and File parsing for batch and mode set
@@ -46,11 +47,16 @@ int main(int argc, char *argv[]) {
 //Iteratilon Starts
         while(1) {
                 if (mode == 0) {
-                        if (fgets(linebuff, 512, fp) == NULL) break;;
+                        if (fgets(linebuff, 512, fp) == NULL) {
+				fprintf(stdout, "File Reading Done \n");
+				fflush(stdout);
+				break;
+			}
                 }
                 else {
                         write(1, "mysh> ", 6);
-                        fgets(linebuff,512, stdin);
+                        if (fgets(linebuff, 512, stdin) == NULL) break;
+                        //fgets(linebuff,512, stdin);
                 }
 
                 if(linebuff[0] == '\n') continue;
@@ -98,12 +104,28 @@ int main(int argc, char *argv[]) {
                         cmds[itr] = strtok(NULL, " ");
                         //if(!strchr(cmds[itr], EOF)) break;
                 }
+		fflush(stdout);
+                if(strcmp(cmds[0], "wait") == 0) {
+		int jid;
+		jid = atoi(cmds[1]);
+			if(jid > job_ctr || job_idx[jid].bg == 0) {
+				fprintf(stderr, "Invalid JID %d \n", jid);
+				fflush(stderr);
+			}
+			else if(waitpid(job_idx[jid].pid, NULL, WUNTRACED)) {
+				fprintf(stdout, "JID %d terminated\n", jid);
+				fflush(stdout);
+			}
+		}
         //Forking happening here
                 //fprintf(stdout, "Jid name = %s\n", linebuff);
                 //fflush(stdout);
                 pid_t pid;
                 pid = fork();
+                //fprintf(stdout, "After fork Loop PID:%i \n", (int)getpid());
+                //fflush(stdout);
                 job_idx[job_ctr].valid = 1;
+                job_idx[job_ctr].bg = waitflag;
                 job_idx[job_ctr].pid = pid;
                 job_idx[job_ctr].jid = job_ctr;
                 job_idx[job_ctr].jobcmd = strdup(linebuff);
@@ -115,10 +137,14 @@ int main(int argc, char *argv[]) {
                         exit(1);
                 }
                 else if (pid == 0) {
+                        //fprintf(stdout, "Entered Child Loop\n");
+                        //fflush(stdout);
                         int cmdstatus;
                         //fprintf(stdout, "InnerJid pid = %i ctr=%i\n", (int)job_idx[job_ctr].pid, job_ctr);
                         //fflush(stdout);
                         cmdstatus = execvp(cmds[0], cmds); // runs word count
+                        //fprintf(stdout, "Exited Child Loop\n");
+                        //fflush(stdout);
                         //execvp(cmds[0], cmds); // runs word count
                         if (cmdstatus == -1) {
                                fprintf(stdout, "Command invalid\n");
@@ -131,7 +157,12 @@ int main(int argc, char *argv[]) {
                         // parent goes down this path (main)
 //                        int pid_wait = wait(NULL);
                        //if(waitflag == 0) wait(NULL);
+                        //fprintf(stdout, "Parent Loop Still running\n");
+                        //fflush(stdout);
                        if(waitflag == 0) waitpid(pid, &childstatus, WUNTRACED);
+		       		sleep(1);
+                        //fprintf(stdout, "Parent Loop done\n");
+                        //fflush(stdout);
                       //waitpid(pid, &childstatus, WUNTRACED);
                        //wait(NULL);
                 }
