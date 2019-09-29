@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
         char *fname;
         int waitflag = 0;
         int childstatus;
+	int redirectflag = 0;
         struct jobstr 
         {
                 pid_t pid;
@@ -117,6 +118,15 @@ int main(int argc, char *argv[]) {
 				fflush(stdout);
 			}
 		}
+		redirectflag = 0;
+                if(itr > 1 && strcmp(cmds[itr-2], ">") == 0) {
+			fprintf(stdout, "redirection Found itr=%d\n", itr);
+			fflush(stdout);
+			redirectflag = 1;
+			cmds[itr-2] = NULL;
+		//	close(STDOUT_FILENO);
+		//	open(cmds[itr-1], O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+		}
         //Forking happening here
                 //fprintf(stdout, "Jid name = %s\n", linebuff);
                 //fflush(stdout);
@@ -139,6 +149,12 @@ int main(int argc, char *argv[]) {
                 else if (pid == 0) {
                         //fprintf(stdout, "Entered Child Loop\n");
                         //fflush(stdout);
+			if(redirectflag == 1) {
+				close(STDOUT_FILENO);
+				open(cmds[itr-1], O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+				//redirectflag = 0;
+			}
+
                         int cmdstatus;
                         //fprintf(stdout, "InnerJid pid = %i ctr=%i\n", (int)job_idx[job_ctr].pid, job_ctr);
                         //fflush(stdout);
