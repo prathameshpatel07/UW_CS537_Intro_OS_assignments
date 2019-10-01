@@ -26,16 +26,18 @@ int main(int argc, char *argv[]) {
         struct jobstr job_idx[100];
 //Argument Check and File parsing for batch and mode set
         if(argc > 2) {
-                fprintf(stderr, "Too many arguments");
-                return -1;
+                fprintf(stderr, "Usage: mysh [batchFile]\n");
+		fflush(stderr);
+                return 1;
         }
         else if (argc == 2) {
                 fname = argv[1];
                 fp = fopen(fname, "r");
                 mode = 0;
                 if (fp == NULL) {
-                        printf("File not exist\n");
-                        return -1;
+                        fprintf(stderr, "Error: Cannot open file %s\n", fname);
+			fflush(stderr);
+                        return 1;
                 }
         }
         else mode = 1;
@@ -49,9 +51,13 @@ int main(int argc, char *argv[]) {
         while(1) {
                 if (mode == 0) {
                         if (fgets(linebuff, 512, fp) == NULL) {
-				fprintf(stdout, "File Reading Done \n");
-				fflush(stdout);
+				//fprintf(stdout, "File Reading Done \n");
+				//fflush(stdout);
 				break;
+			}
+			else {
+				fprintf(stdout, "%s", linebuff);
+				fflush(stdout);
 			}
                 }
                 else {
@@ -84,7 +90,15 @@ int main(int argc, char *argv[]) {
                         }
 			continue;
                 }
-                if(strcmp(cmds[0], "exit") == 0) break;
+                
+		int itr = 0;
+        //Each Command iteration
+                while(cmds[itr] != NULL) {
+                        itr++;
+                        cmds[itr] = strtok(NULL, " ");
+                        //if(!strchr(cmds[itr], EOF)) break;
+                }
+                if(strcmp(cmds[0], "exit") == 0 && cmds[1] == NULL) break;
                 if(strcmp(cmds[0], "jobs") == 0) {
                         for(int i = 0; i < 10; i++) {
                                         //fprintf(stdout, "First Loop:i index= %i valid=%i PID pending = %i Jid= %ii CurrPID=%i \n", i, job_idx[i].valid, job_idx[i].pid, job_idx[i].jid, (int)getpid());
@@ -97,16 +111,7 @@ int main(int argc, char *argv[]) {
                         }
 			continue;
                 }
-                
-		int itr = 0;
-        //Each Command iteration
-                while(cmds[itr] != NULL) {
-                        itr++;
-                        cmds[itr] = strtok(NULL, " ");
-                        //if(!strchr(cmds[itr], EOF)) break;
-                }
-		fflush(stdout);
-                if(strcmp(cmds[0], "wait") == 0) {
+		if(strcmp(cmds[0], "wait") == 0) {
 		int jid;
 		jid = atoi(cmds[1]);
 			if(jid > job_ctr || job_idx[jid].bg == 0) {
@@ -120,8 +125,8 @@ int main(int argc, char *argv[]) {
 		}
 		redirectflag = 0;
                 if(itr > 1 && strcmp(cmds[itr-2], ">") == 0) {
-			fprintf(stdout, "redirection Found itr=%d\n", itr);
-			fflush(stdout);
+			//fprintf(stdout, "redirection Found itr=%d\n", itr);
+			//fflush(stdout);
 			redirectflag = 1;
 			cmds[itr-2] = NULL;
 		//	close(STDOUT_FILENO);
@@ -144,6 +149,7 @@ int main(int argc, char *argv[]) {
                 job_ctr++;
                 if (pid < 0) {
                         fprintf(stderr, "fork failed\n");
+			fflush(stderr);
                         exit(1);
                 }
                 else if (pid == 0) {
@@ -163,10 +169,10 @@ int main(int argc, char *argv[]) {
                         //fflush(stdout);
                         //execvp(cmds[0], cmds); // runs word count
                         if (cmdstatus == -1) {
-                               fprintf(stdout, "Command invalid\n");
-                               fflush(stdout);
+                               fprintf(stderr, "%s: Command not found\n", cmds[0]);
+                               fflush(stderr);
                                 //return 0;
-                               if (waitflag == 0) exit(1);
+                               if (waitflag == 0) _exit(1);
                         }
                         //exit(1);
                 } else {
