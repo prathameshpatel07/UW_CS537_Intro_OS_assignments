@@ -1,0 +1,10 @@
+mysh.c:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+mysh.c:53:  Almost always, snprintf is better than strcpy  [runtime/printf] [4]
+mysh.c:78:  Consider using strtok_r(...) instead of strtok(...) for improved thread safety.  [runtime/threadsafe_fn] [2]
+mysh.c:83:  Almost always, snprintf is better than strcat  [runtime/printf] [4]
+mysh.c:88:  Consider using strtok_r(...) instead of strtok(...) for improved thread safety.  [runtime/threadsafe_fn] [2]
+mysh.c:90:  Almost always, snprintf is better than strcat  [runtime/printf] [4]
+mysh.c:91:  Almost always, snprintf is better than strcat  [runtime/printf] [4]
+mysh.c:143:  Should have a space between // and comment  [whitespace/comments] [4]
+Done processing mysh.c
+Total errors found: 8

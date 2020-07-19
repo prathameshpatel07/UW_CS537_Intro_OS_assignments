@@ -1,0 +1,9 @@
+fscheck images/bmapcheck_1_unmarked.img
+fscheck images/bmapcheck_2_marked.img
+fscheck images/dircheck_1_badroot.img
+fscheck images/dircheck_2_currdir.img
+fscheck images/good.img
+fscheck images/inode_1_badinode.img
+fscheck images/inode_2_badsize.img
+fscheck images/multistruct_1_freeinode.img
+fscheck images/multistruct_2_inuseInode.img
